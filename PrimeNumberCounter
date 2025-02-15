@@ -1,0 +1,62 @@
+#Copyright (c) Alexander Edward Brygider all rights reserved
+
+import random
+
+# Initialization
+P = 210
+roots = [11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 169, 173, 179, 181, 187, 191, 193, 197, 199, 209, 211]
+
+def miller_rabin(n, k=4):
+    """Miller-Rabin primality test with k rounds."""
+    if n <= 1:
+        return False
+    if n <= 3:
+        return True
+    if n % 2 == 0 or n % 3 == 0:
+        return False
+
+    d = n - 1
+    while d % 2 == 0:
+        d //= 2
+
+    for _ in range(k):
+        a = random.randrange(2, n - 1)
+        x = pow(a, d, n)
+        if x == 1 or x == n - 1:
+            continue
+        while d != n - 1:
+            x = (x * x) % n
+            d *= 2
+            if x == n - 1:
+                break
+        if x != n - 1:
+            return False
+    return True
+
+def is_prime(n):
+    """Primality check using Miller-Rabin test."""
+    return miller_rabin(n)
+
+def generate_primes_continuously(roots, start_prime, batch_size=10):
+    """Generate primes starting from a given prime number continuously."""
+    cycle = 1
+    # Adjust the cycle to start generation from the specified prime number or above
+    cycle_start = (start_prime - roots[0]) // P + 1
+    cycle = max(cycle, cycle_start)
+
+    while True:  # Infinite loop
+        batch = []
+        for r in roots:
+            alpha = r + cycle * P
+            if alpha >= start_prime and is_prime(alpha):
+                batch.append(alpha)
+                print(alpha)  # Printing each prime as found
+                if len(batch) >= batch_size:
+                    print(f"Batch {cycle}: {batch}")
+                    batch = []
+        cycle += 1
+
+# Call the modified function
+start_prime =  2 # Starting prime number
+batch_size = 1  # Adjust batch size as desired
+generate_primes_continuously(roots, start_prime, batch_size)
